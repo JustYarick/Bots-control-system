@@ -1,0 +1,73 @@
+# Python bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+
+# Virtual environments
+venv/
+env/
+ENV/
+.venv/
+.env/
+
+# Environment variables
+.env
+.env.development
+.env.production
+
+# IDE files
+.idea/
+.vscode/
+*.swp
+*.swo
+*~
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Logs
+logs/
+*.log
+
+# Database files
+*.sqlite3
+*.db
+
+# Alembic migrations (if using)
+alembic/versions/*.py
+!alembic/versions/__init__.py
+
+# Test coverage files
+.coverage
+htmlcov/
+.pytest_cache/
+.cache
+
+# Build and distribution artifacts
+build/
+dist/
+*.egg-info/
+
+# Jupyter Notebook
+.ipynb_checkpoints
+
+# Poetry configuration files (if using)
+poetry.lock
+
+# Static files (if there are uploads)
+static/uploads/
+media/
+
+# Temporary files
+*.tmp
+*.temp
+
+# Documentation (generated)
+docs/_build/
+
+# mypy
+.mypy_cache/
+.dmypy.json
+dmypy.json
