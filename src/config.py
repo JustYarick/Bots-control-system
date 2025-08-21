@@ -1,8 +1,10 @@
 from dotenv import load_dotenv
+
 load_dotenv(override=True, encoding="UTF-8")
 
 import os
 from dataclasses import dataclass, field
+
 
 @dataclass
 class DatabaseConfig:
@@ -11,7 +13,8 @@ class DatabaseConfig:
     host: str = os.getenv("DB_HOST")
     port: str = os.getenv("DB_PORT")
     name: str = (
-        os.getenv("DB_TEST_NAME") if os.getenv("IS_TESTING", "False").lower() == "true"
+        os.getenv("DB_TEST_NAME")
+        if os.getenv("IS_TESTING", "False").lower() == "true"
         else os.getenv("DB_NAME")
     )
 
@@ -27,14 +30,16 @@ class DatabaseConfig:
         if not self.name:
             raise ValueError("DB_NAME or DB_TEST_NAME is not set")
 
-
     @property
     def sync_url(self) -> str:
         return f"postgresql://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
 
     @property
     def async_url(self) -> str:
-        return f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
+        return (
+            f"postgresql+asyncpg://{self.user}:{self.password}@{self.host}:{self.port}/{self.name}"
+        )
+
 
 @dataclass
 class RedisConfig:
@@ -53,6 +58,7 @@ class RedisConfig:
         if not self.password:
             raise ValueError("REDIS_PASSWORD is not set, using default (no password)")
 
+
 @dataclass
 class APISettings:
     token: str = os.getenv("API_TOKEN")
@@ -65,10 +71,12 @@ class APISettings:
         if not self.port:
             raise ValueError("API_PORT is not set")
 
+
 @dataclass
 class Settings:
     db: DatabaseConfig = field(default_factory=lambda: DatabaseConfig())
-    redis: RedisConfig = field(default_factory=lambda:  RedisConfig())
+    redis: RedisConfig = field(default_factory=lambda: RedisConfig())
     api: APISettings = field(default_factory=lambda: APISettings())
+
 
 settings = Settings()
