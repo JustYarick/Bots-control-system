@@ -1,42 +1,20 @@
 from typing import Protocol, List, Optional
 from uuid import UUID
 
-from api.v1.feature_flags.schemas import (
-    FeatureFlagCreate,
-    FeatureFlagUpdate,
-    FeatureConfigCreate,
-    FeatureConfigUpdate,
+from api.v1.feature.feature_config.config_version.repository import (
+    FeatureConfigVersionRepository,
+)
+from api.v1.feature.feature_config.config_version.schema import FeatureConfigVersionCreate
+from api.v1.feature.feature_config.repository import FeatureConfigRepository
+from api.v1.feature.feature_config.schema import FeatureConfigCreate, FeatureConfigUpdate
+from api.v1.feature.repository import FeatureConfigFlagRepository
+from api.v1.feature.schemas import (
     FeatureConfigFlagCreate,
     FeatureConfigFlagUpdate,
-    FeatureConfigVersionCreate,
     Environment,
 )
 from database.UnitOfWork import UnitOfWork
-from database.models import FeatureFlag, FeatureConfig, FeatureConfigFlag, FeatureConfigVersion
-from .repository import (
-    FeatureFlagRepository,
-    FeatureConfigRepository,
-    FeatureConfigFlagRepository,
-    FeatureConfigVersionRepository,
-)
-
-
-class FeatureFlagService(Protocol):
-    """Протокол сервиса для работы с функциями"""
-
-    async def create_feature(self, feature_data: FeatureFlagCreate) -> FeatureFlag: ...
-
-    async def list_features(self, skip: int = 0, limit: int = 100) -> List[FeatureFlag]: ...
-
-    async def get_feature(self, feature_id: UUID) -> Optional[FeatureFlag]: ...
-
-    async def get_feature_by_name(self, name: str) -> Optional[FeatureFlag]: ...
-
-    async def update_feature(
-        self, feature_id: UUID, update_data: FeatureFlagUpdate
-    ) -> Optional[FeatureFlag]: ...
-
-    async def delete_feature(self, feature_id: UUID) -> bool: ...
+from database.models import FeatureConfig, FeatureConfigFlag, FeatureConfigVersion
 
 
 class FeatureConfigService(Protocol):
@@ -62,7 +40,6 @@ class FeatureConfigService(Protocol):
 
     async def deactivate_config(self, config_id: UUID) -> bool: ...
 
-    # Feature management
     async def add_feature_to_config(
         self, config_id: UUID, feature_data: FeatureConfigFlagCreate
     ) -> FeatureConfig: ...
@@ -75,55 +52,11 @@ class FeatureConfigService(Protocol):
 
     async def get_config_features(self, config_id: UUID) -> List[FeatureConfigFlag]: ...
 
-    # Version management
     async def create_config_version(
         self, config_id: UUID, version_data: FeatureConfigVersionCreate
     ) -> FeatureConfigVersion: ...
 
     async def get_config_versions(self, config_id: UUID) -> List[FeatureConfigVersion]: ...
-
-
-class FeatureFlagServiceImpl:
-    """Сервис для работы с функциями"""
-
-    def __init__(self, repository: FeatureFlagRepository, uow: UnitOfWork):
-        self._repository = repository
-        self._uow = uow
-
-    async def create_feature(self, feature_data: FeatureFlagCreate) -> FeatureFlag:
-        async with self._uow:
-            feature = FeatureFlag(**feature_data.model_dump())
-            return await self._repository.add(feature)
-
-    async def list_features(self, skip: int = 0, limit: int = 100) -> List[FeatureFlag]:
-        async with self._uow:
-            return await self._repository.get_all(skip=skip, limit=limit)
-
-    async def get_feature(self, feature_id: UUID) -> Optional[FeatureFlag]:
-        async with self._uow:
-            return await self._repository.get_by_id(feature_id)
-
-    async def get_feature_by_name(self, name: str) -> Optional[FeatureFlag]:
-        async with self._uow:
-            return await self._repository.get_by_name(name)
-
-    async def update_feature(
-        self, feature_id: UUID, update_data: FeatureFlagUpdate
-    ) -> Optional[FeatureFlag]:
-        async with self._uow:
-            feature = await self._repository.get_by_id(feature_id)
-            if not feature:
-                return None
-
-            update_fields = update_data.model_dump(exclude_unset=True)
-            for field, value in update_fields.items():
-                setattr(feature, field, value)
-
-            return await self._repository.update(feature)
-
-    async def delete_feature(self, feature_id: UUID) -> bool:
-        async with self._uow:
-            return await self._repository.delete(feature_id)
 
 
 class FeatureConfigServiceImpl:
@@ -146,7 +79,6 @@ class FeatureConfigServiceImpl:
             config = FeatureConfig(**config_data.model_dump())
             created_config = await self._config_repository.add(config)
 
-            # Создаем первую версию
             await self._version_repository.create_version(
                 config_id=created_config.id, changelog="Initial version"
             )
@@ -175,7 +107,6 @@ class FeatureConfigServiceImpl:
 
             updated_config = await self._config_repository.update(config)
 
-            # Создаем новую версию при обновлении
             await self._version_repository.create_version(
                 config_id=config_id, changelog="Configuration updated"
             )
@@ -221,13 +152,11 @@ class FeatureConfigServiceImpl:
                 config_id=config_id, **feature_data.model_dump()
             )
 
-            # Создаем новую версию
             await self._version_repository.create_version(
                 config_id=config_id,
                 changelog=f"Feature {feature_data.feature_id} added to configuration",
             )
 
-            # Возвращаем ПОЛНУЮ конфигурацию
             return await self._config_repository.get_by_id(config_id)
 
     async def remove_feature_from_config(self, config_id: UUID, feature_id: UUID) -> bool:

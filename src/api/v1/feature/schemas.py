@@ -4,6 +4,9 @@ from uuid import UUID
 from datetime import datetime
 from enum import Enum
 
+from api.v1.feature.feature_config.config_version.schema import FeatureConfigVersionResponse
+from api.v1.feature.feauture_flags.schema import FeatureFlagResponse
+
 
 class Environment(str, Enum):
     """Доступные окружения"""
@@ -11,68 +14,6 @@ class Environment(str, Enum):
     DEVELOPMENT = "development"
     TESTING = "testing"
     PRODUCTION = "production"
-
-
-# =====================
-# Feature Flag schemas
-# =====================
-
-
-class FeatureFlagCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=64)
-    description: Optional[str] = Field(None, max_length=256)
-
-
-class FeatureFlagUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=64)
-    description: Optional[str] = Field(None, max_length=256)
-
-
-class FeatureFlagResponse(BaseModel):
-    id: UUID
-    name: str
-    description: Optional[str]
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-# =====================
-# Feature Config schemas
-# =====================
-
-
-class FeatureConfigCreate(BaseModel):
-    name: str = Field(..., min_length=1, max_length=64)
-    environment: Environment
-    description: Optional[str] = Field(None, max_length=256)
-    is_active: bool = Field(False)
-
-
-class FeatureConfigUpdate(BaseModel):
-    name: Optional[str] = Field(None, min_length=1, max_length=64)
-    description: Optional[str] = Field(None, max_length=256)
-    is_active: Optional[bool] = None
-
-
-class FeatureConfigResponse(BaseModel):
-    id: UUID
-    name: str
-    environment: Environment
-    description: Optional[str]
-    is_active: bool
-    created_at: datetime
-    updated_at: datetime
-
-    class Config:
-        from_attributes = True
-
-
-# =============================
-# Feature Config Flag schemas
-# =============================
 
 
 class FeatureConfigFlagCreate(BaseModel):
@@ -97,28 +38,6 @@ class FeatureConfigFlagResponse(BaseModel):
     created_at: datetime
 
     feature: FeatureFlagResponse
-
-    class Config:
-        from_attributes = True
-
-
-# ================================
-# Feature Config Version schemas
-# ================================
-
-
-class FeatureConfigVersionCreate(BaseModel):
-    changelog: Optional[str] = None
-    created_by: Optional[str] = Field(None, max_length=64)
-
-
-class FeatureConfigVersionResponse(BaseModel):
-    id: int
-    config_id: UUID
-    version_number: int
-    changelog: Optional[str]
-    created_by: Optional[str]
-    created_at: datetime
 
     class Config:
         from_attributes = True

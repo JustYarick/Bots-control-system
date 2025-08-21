@@ -7,22 +7,27 @@ from sqlalchemy.ext.asyncio import (
     async_sessionmaker,
 )
 
-from src.config import DatabaseConfig, settings
-from api.v1.feature_flags.repository import (
-    FeatureFlagRepository,
-    FeatureFlagRepositoryImpl,
+from api.v1.feature.feature_config.config_version.repository import (
+    FeatureConfigVersionRepositoryImpl,
+    FeatureConfigVersionRepository,
+)
+from api.v1.feature.feature_config.repository import (
     FeatureConfigRepository,
     FeatureConfigRepositoryImpl,
-    FeatureConfigFlagRepository,
-    FeatureConfigFlagRepositoryImpl,
-    FeatureConfigVersionRepository,
-    FeatureConfigVersionRepositoryImpl,
 )
-from api.v1.feature_flags.service import (
-    FeatureFlagService,
-    FeatureFlagServiceImpl,
+from api.v1.feature.feature_config.service import (
     FeatureConfigService,
     FeatureConfigServiceImpl,
+)
+from api.v1.feature.feauture_flags.repository import (
+    FeatureFlagRepositoryImpl,
+    FeatureFlagRepository,
+)
+from api.v1.feature.feauture_flags.service import FeatureFlagServiceImpl, FeatureFlagService
+from src.config import DatabaseConfig, settings
+from api.v1.feature.repository import (
+    FeatureConfigFlagRepository,
+    FeatureConfigFlagRepositoryImpl,
 )
 from database.UnitOfWork import UnitOfWork
 
