@@ -1,4 +1,3 @@
-# DI/providers.py
 from dishka import Provider, Scope, provide
 from typing import AsyncGenerator
 from sqlalchemy.ext.asyncio import (
@@ -9,8 +8,22 @@ from sqlalchemy.ext.asyncio import (
 )
 
 from src.config import DatabaseConfig, settings
-from api.v1.bot_config.repository import BotConfigRepository, BotConfigRepositoryImpl
-from api.v1.bot_config.service import BotConfigService, BotConfigServiceImpl
+from api.v1.feature_flags.repository import (
+    FeatureFlagRepository,
+    FeatureFlagRepositoryImpl,
+    FeatureConfigRepository,
+    FeatureConfigRepositoryImpl,
+    FeatureConfigFlagRepository,
+    FeatureConfigFlagRepositoryImpl,
+    FeatureConfigVersionRepository,
+    FeatureConfigVersionRepositoryImpl,
+)
+from api.v1.feature_flags.service import (
+    FeatureFlagService,
+    FeatureFlagServiceImpl,
+    FeatureConfigService,
+    FeatureConfigServiceImpl,
+)
 from database.UnitOfWork import UnitOfWork
 
 
@@ -47,8 +60,24 @@ class RepositoryProvider(Provider):
     """Провайдер репозиториев"""
 
     @provide(scope=Scope.REQUEST)
-    def get_bot_config_repository(self, session: AsyncSession) -> BotConfigRepository:
-        return BotConfigRepositoryImpl(session)
+    def get_feature_flag_repository(self, session: AsyncSession) -> FeatureFlagRepository:
+        return FeatureFlagRepositoryImpl(session)
+
+    @provide(scope=Scope.REQUEST)
+    def get_feature_config_repository(self, session: AsyncSession) -> FeatureConfigRepository:
+        return FeatureConfigRepositoryImpl(session)
+
+    @provide(scope=Scope.REQUEST)
+    def get_feature_config_flag_repository(
+        self, session: AsyncSession
+    ) -> FeatureConfigFlagRepository:
+        return FeatureConfigFlagRepositoryImpl(session)
+
+    @provide(scope=Scope.REQUEST)
+    def get_feature_config_version_repository(
+        self, session: AsyncSession
+    ) -> FeatureConfigVersionRepository:
+        return FeatureConfigVersionRepositoryImpl(session)
 
 
 class UnitOfWorkProvider(Provider):
@@ -63,7 +92,19 @@ class ServiceProvider(Provider):
     """Провайдер сервисов"""
 
     @provide(scope=Scope.REQUEST)
-    def get_bot_config_service(
-        self, repository: BotConfigRepository, uow: UnitOfWork
-    ) -> BotConfigService:
-        return BotConfigServiceImpl(repository, uow)
+    def get_feature_flag_service(
+        self, repository: FeatureFlagRepository, uow: UnitOfWork
+    ) -> FeatureFlagService:
+        return FeatureFlagServiceImpl(repository, uow)
+
+    @provide(scope=Scope.REQUEST)
+    def get_feature_config_service(
+        self,
+        config_repository: FeatureConfigRepository,
+        config_flag_repository: FeatureConfigFlagRepository,
+        version_repository: FeatureConfigVersionRepository,
+        uow: UnitOfWork,
+    ) -> FeatureConfigService:
+        return FeatureConfigServiceImpl(
+            config_repository, config_flag_repository, version_repository, uow
+        )

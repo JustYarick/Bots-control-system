@@ -1,4 +1,5 @@
 # database/database.py - оставьте только InitDB
+from sqlalchemy.orm import DeclarativeBase
 from sqlalchemy_utils import database_exists, create_database
 from loguru import logger
 from src.config import settings
@@ -19,3 +20,7 @@ class InitDB:
         except Exception as e:
             logger.error(f"Failed to create or check database: {e}")
             raise
+
+
+class Base(DeclarativeBase):
+    pass

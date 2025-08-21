@@ -5,9 +5,9 @@ from dishka.integrations.fastapi import setup_dishka
 from sqlalchemy.ext.asyncio import AsyncEngine
 
 from logger import setup_logging
-from api.v1.bot_config.view import router as bot_config_router
 from DI.container import create_container
 from database.database import InitDB
+from src.api import router as api_router
 
 
 @asynccontextmanager
@@ -39,7 +39,7 @@ def create_app() -> FastAPI:
     container = create_container()
     setup_dishka(container, app)
 
-    app.include_router(bot_config_router, prefix="/api/v1")
+    app.include_router(api_router, prefix="/api/v1")
 
     return app
 

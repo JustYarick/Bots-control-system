@@ -1,16 +1,10 @@
-class BotConfigError(Exception):
-    """Базовое исключение для работы с конфигурациями ботов"""
+class FeatureFlagAlreadyExistsError(Exception):
+    """Исключение для случая, когда feature flag уже существует"""
 
     pass
 
 
-class BotConfigNotFoundError(BotConfigError):
-    """Конфигурация не найдена"""
-
-    pass
-
-
-class BotConfigAlreadyExistsError(BotConfigError):
-    """Конфигурация уже существует"""
+class FeatureFlagNotFoundError(Exception):
+    """Исключение для случая, когда feature flag не найден"""
 
     pass
