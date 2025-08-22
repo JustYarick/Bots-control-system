@@ -60,18 +60,6 @@ services:
     volumes:
       - pgadmin_data:/var/lib/pgadmin
 
-  redis:
-    image: redis:7.4-alpine
-    container_name: magicsbot_redis
-    restart: unless-stopped
-    ports:
-      - "6379:6379"
-    volumes:
-      - redis_data:/data
-    networks:
-      - keycloak-network
-    command: redis-server --appendonly yes
-
 volumes:
   postgres_data: {}
   pgadmin_data: {}
