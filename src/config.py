@@ -73,10 +73,18 @@ class APISettings:
 
 
 @dataclass
+class SentrySettings:
+    sentry_dsn: str = os.getenv("SENTRY_DSN", "")
+    sentry_environment: str = os.getenv("SENTRY_ENVIRONMENT", "development")
+    sentry_traces_sample_rate: float = float(os.getenv("SENTRY_TRACES_SAMPLE_RATE", "1.0"))
+
+
+@dataclass
 class Settings:
     db: DatabaseConfig = field(default_factory=lambda: DatabaseConfig())
     redis: RedisConfig = field(default_factory=lambda: RedisConfig())
     api: APISettings = field(default_factory=lambda: APISettings())
+    sentry: SentrySettings = field(default_factory=lambda: SentrySettings())
 
 
 settings = Settings()
